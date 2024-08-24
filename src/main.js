@@ -19,7 +19,16 @@ console.log(lightbox);
 const onSearchFormSubmit = event => {
   event.preventDefault();
 
-  const searchValue = searchFormEl.elements.user_query.value;
+  const searchValue = searchFormEl.elements.user_query.value.trim();
+  if (searchValue === '') {
+    iziToast.error({
+      message: 'Sorry, there no image you are looking',
+      position: 'topRight',
+    });
+    return;
+  }
+
+  loaderEl.classList.remove('is-hidden');
 
   fetchPhotos(searchValue)
     .then(data => {
@@ -31,7 +40,7 @@ const onSearchFormSubmit = event => {
         });
 
         galleryEl.innerHTML = '';
-        searchFormEl.reset();
+
         return;
       }
       const galleryCardsTemplate = data.hits
@@ -39,9 +48,13 @@ const onSearchFormSubmit = event => {
         .join('');
       galleryEl.innerHTML = galleryCardsTemplate;
       lightbox.refresh();
+      searchFormEl.reset();
     })
     .catch(error => {
       console.log(error);
+    })
+    .finally(() => {
+      loaderEl.classList.add('is-hidden');
     });
 };
 
